@@ -1,0 +1,270 @@
+================================================================ QUESTION 1: =========================================================================
+How to use multiple github ssh keys on the same laptop with OS Ubuntu 22 LTS?
+
+Using multiple SSH keys for different GitHub accounts on the same machine is a common practice, especially when dealing with both personal and work-related projects. Here's a step-by-step guide to achieve this on Ubuntu 22 LTS:
+
+1. **Generate SSH Keys**:
+    If you haven't already generated SSH keys for your accounts, you can do so using:
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+    During the process, you'll be prompted to provide a file in which to save the key. Use a unique name for each key, for example:
+    - `~/.ssh/id_ed25519_personal`
+    - `~/.ssh/id_ed25519_work`
+
+2. **Add SSH Keys to ssh-agent**:
+    First, make sure `ssh-agent` is running:
+    ```bash
+    eval "$(ssh-agent -s)"
+    ```
+    Then, add your keys to the agent:
+    ```bash
+    ssh-add ~/.ssh/id_ed25519_personal
+    ssh-add ~/.ssh/id_ed25519_work
+    ```
+
+3. **Create SSH Config File**:
+    If you don't already have a `~/.ssh/config` file, create one using your favorite text editor.
+    ```bash
+    nano ~/.ssh/config
+    ```
+    Add entries for each of your GitHub accounts:
+    ```bash
+    # Personal account
+    Host github.com-personal
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519_personal
+        IdentitiesOnly yes
+
+    # Work account
+    Host github.com-work
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519_work
+        IdentitiesOnly yes
+    ```
+
+4. **Add SSH Keys to GitHub Accounts**:
+    For each key you generated, copy its public content:
+    ```bash
+    cat ~/.ssh/id_ed25519_personal.pub
+    ```
+    (Repeat for the work key with `cat ~/.ssh/id_ed25519_work.pub`.)
+
+    Then, for each GitHub account:
+    - Go to [GitHub](https://github.com/)
+    - Click on your profile picture and go to Settings.
+    - On the left sidebar, click on SSH and GPG keys.
+    - Click on the New SSH key button.
+    - Provide a title and paste the key content in the text box.
+    - Click Add SSH key.
+
+5. **Clone and Interact with Repositories**:
+    Now, when you clone a repository or interact with one, you will use the custom host names. For example, for a personal account repository:
+    ```bash
+    git clone git@github.com-personal:YourUsername/YourRepo.git
+    ```
+    For a work account repository:
+    ```bash
+    git clone git@github.com-work:YourWorkUsername/YourWorkRepo.git
+    ```
+
+6. **Potential Issues**:
+    If you face issues, it might be related to permissions. Ensure that your private keys (`~/.ssh/id_ed25519_personal` and `~/.ssh/id_ed25519_work`) and your `~/.ssh/config` file have the correct permissions:
+    ```bash
+    chmod 600 ~/.ssh/id_ed25519_personal
+    chmod 600 ~/.ssh/id_ed25519_work
+    chmod 600 ~/.ssh/config
+    ```
+
+With these steps completed, you can seamlessly work with multiple GitHub accounts from the same Ubuntu machine.
+
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 2: =========================================================================
+I did everything suggested from above, but still I get an error ERROR: Permission to yuriiknowsjava/restcountries-validation-ai.git denied to ykov_sftsrv.
+
+The error you're seeing indicates that the SSH key associated with the `ykov_sftsrv` username does not have access to the `yuriiknowsjava/restcountries-validation-ai.git` repository. This can happen for several reasons.
+
+Here's a checklist to troubleshoot the issue:
+
+1. **Correct SSH Key**:
+    - Ensure that you've added the correct public SSH key to your GitHub account. If you added the key of `ykov_sftsrv` instead of `yuriiknowsjava` (or vice versa), this error can occur.
+
+2. **SSH Config**:
+    - Double-check your `~/.ssh/config` file. Ensure the Host configuration is correct and corresponds to the correct IdentityFile.
+
+3. **Repository Permission**:
+    - Log in to the GitHub web interface as `yuriiknowsjava` and ensure that the `ykov_sftsrv` user has been granted access to the repository if you want both accounts to access the repo. If `ykov_sftsrv` is supposed to be the main account, then you might be using the wrong SSH key or GitHub host alias when trying to access the repository.
+
+4. **Test SSH Connection**:
+    - You can test your SSH connection to GitHub with:
+      ```bash
+      ssh -T git@github.com-personal
+      ```
+      Or, if it's for the work account:
+      ```bash
+      ssh -T git@github.com-work
+      ```
+      GitHub will respond with a message indicating which account you're authenticated as.
+
+5. **Verbose Output**:
+    - If you're still having trouble, you can get verbose output from SSH with:
+      ```bash
+      ssh -Tv git@github.com-personal
+      ```
+      This might give you more details about what's going wrong.
+
+6. **Cache**:
+    - SSH might have cached some connection details. You can clear this by deleting known hosts:
+      ```bash
+      ssh-keygen -R github.com
+      ```
+
+7. **Use Full Git Command**:
+    - Sometimes, specifying everything explicitly can help. Instead of relying on the SSH alias, use the full command:
+      ```bash
+      GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_personal" git clone git@github.com:yuriiknowsjava/restcountries-validation-ai.git
+      ```
+      Replace `id_ed25519_personal` with the key you want to use.
+
+8. **Repository Existence and Typo**:
+    - Ensure that there's no typo in the repository name and that the repository actually exists under the `yuriiknowsjava` account.
+
+If after following these steps you're still experiencing issues, consider re-generating and re-adding your SSH keys for the problematic account, making sure to update them on GitHub, and then re-trying.
+======================================================================================================================================================
+
+
+
+================================================================ QUESTION 3: =========================================================================
+How to add SonarCloud.io to a public github repository
+
+To integrate SonarCloud with a public GitHub repository, follow these steps:
+
+### 1. Sign up / Log in to SonarCloud
+
+1. Go to [SonarCloud.io](https://sonarcloud.io/).
+2. Click on "Log in" and sign in using your GitHub account.
+
+### 2. Import Your Project
+
+1. Once logged in, click on the `+` button (usually at the top right) and select "Analyze new project".
+2. You should now see a list of your GitHub repositories. If not, make sure you grant SonarCloud the necessary permissions to access your GitHub account.
+3. Find and select the repository you want to analyze.
+
+### 3. Configure Analysis
+
+1. After selecting your project, SonarCloud will provide setup instructions tailored to your project's primary language.
+2. You'll typically be prompted to add a configuration file called `sonar-project.properties` to your project, but the exact instructions can vary.
+3. Follow the given steps, ensuring to specify any required paths or settings for your particular project setup.
+
+### 4. Set Up Continuous Integration (CI)
+
+SonarCloud works best when it's integrated into your CI/CD process. Here's a basic example for setting up with GitHub Actions:
+
+1. Create a new file in your repository under `.github/workflows/sonarcloud.yml`.
+
+2. In this file, add the following basic configuration:
+
+```yaml
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main # Change to your default branch if it's not 'main'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn clean verify sonar:sonar -Dsonar.projectKey=YourProjectKey
+```
+
+3. Ensure you replace `YourProjectKey` with the actual project key provided by SonarCloud.
+
+4. Add your `SONAR_TOKEN` as a secret in your GitHub repository. You can find this token in your SonarCloud account under "My Account" > "Security".
+
+5. Now, when you push changes to your repository, GitHub Actions will run, and SonarCloud will analyze your code.
+
+### 5. Configure Pull Request Analysis
+
+One of the great features of SonarCloud is its ability to analyze pull requests. When integrated, it will comment on pull requests with any detected issues. The configuration provided in the GitHub Actions workflow above supports pull request analysis by default, so if you've set that up, you're good to go.
+
+### 6. Review and Manage
+
+After pushing code, visit your project on SonarCloud to view the analysis results, manage issues, set up quality gates, and more.
+
+Remember, the above steps are quite generic, and the specifics may vary depending on your project type, language, and other factors. Always refer to the SonarCloud documentation and the provided setup guide for accurate and detailed instructions.
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 4: =========================================================================
+Please, generate sonar-project.properties for a Java project
+
+Certainly! Here's a basic example of a `sonar-project.properties` file for a Java project:
+
+```properties
+# Required metadata
+sonar.projectKey=my_project_key
+sonar.projectName=My Java Project
+sonar.projectVersion=1.0
+
+# Comma-separated paths to directories with sources (required)
+sonar.sources=src/main/java
+
+# Language
+sonar.language=java
+
+# Encoding of the source files
+sonar.sourceEncoding=UTF-8
+
+# Additional parameters if needed
+# sonar.java.binaries=target/classes
+# sonar.exclusions=**/SomeExcludedFile.java,**/SomeExcludedPackage/*
+```
+
+Replace `my_project_key` with a unique key for your project. You can customize this key, but it's usually good to keep it related to your project's name to easily identify it.
+
+Here's a breakdown of the properties:
+
+- `sonar.projectKey`: A unique identifier for the project.
+- `sonar.projectName`: A human-readable name for the project.
+- `sonar.projectVersion`: Version of your project.
+- `sonar.sources`: Path to the source directories. More than one directory can be provided, separated by commas.
+- `sonar.language`: The primary language of the project. In this case, it's set to Java.
+- `sonar.sourceEncoding`: Encoding of the source files.
+- `sonar.java.binaries`: This is sometimes needed for Java projects so that SonarCloud knows where to find the compiled bytecode. Uncomment and adjust if needed.
+- `sonar.exclusions`: If you want to exclude certain files or packages from analysis, you can specify them here.
+
+This is a basic setup for a standard Java project. Depending on the complexities and requirements of your project (like if you're using multi-module Maven builds, or if you have integration tests), you might need additional configurations.
+
+Also, always ensure to check the official SonarCloud documentation for any new features or changes in configuration properties.
