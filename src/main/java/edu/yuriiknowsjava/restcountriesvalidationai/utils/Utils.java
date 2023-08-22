@@ -17,7 +17,9 @@ import edu.yuriiknowsjava.restcountriesvalidationai.exceptions.ServiceUnavailabl
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Utils {
+public final class Utils {
+    private Utils() {
+    }
 
     public static URI createUri(String str) {
         try {
@@ -33,6 +35,7 @@ public class Utils {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             log.error("Cannot make a request to {} {}", request.method(), request.uri());
+            Thread.currentThread().interrupt();
             throw new ServiceUnavailableException();
         }
     }
