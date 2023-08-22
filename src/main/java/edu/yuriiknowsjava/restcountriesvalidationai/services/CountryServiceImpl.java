@@ -1,6 +1,5 @@
 package edu.yuriiknowsjava.restcountriesvalidationai.services;
 
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -33,7 +32,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public List<Map<String, Object>> getCountries() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(restcountriesBaseUrl + "/all"))
+                .uri(Utils.createUri(null + "/all"))
                 .GET()
                 .build();
         HttpResponse<String> response = Utils.sendRequest(httpClient, request);
