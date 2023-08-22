@@ -60,4 +60,10 @@ public final class Filters {
                 })
                 .collect(Collectors.toList());
     }
+
+    public static List<Map<String, Object>> limitTheResult(List<Map<String, Object>> countries, int pageSize) {
+        return countries.stream()
+                .limit(pageSize)
+                .collect(Collectors.toList());
+    }
 }

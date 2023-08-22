@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class Sort {
+    private Sort() {
+    }
 
     public enum Order {
         ASD,
