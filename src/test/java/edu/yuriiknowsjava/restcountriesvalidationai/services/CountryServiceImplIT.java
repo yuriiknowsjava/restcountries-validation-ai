@@ -24,16 +24,16 @@ import org.testcontainers.utility.DockerImageName;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Testcontainers
-public class CountryServiceImplIT {
+class CountryServiceImplIT {
 
     @Container
-    public MockServerContainer mockServer = new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.14.0"));
+    private final MockServerContainer mockServer = new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.14.0"));
 
     @Autowired
     private CountryServiceImpl countryService;
 
     @Test
-    public void testGetCountries() {
+    void testGetCountries() {
         // Setup mock server response
         var expectedJson = "[{ \"name\": {\"common\":\"American Samoa\",\"official\":\"American Samoa\"} }, "
                 + "{ \"name\": {\"common\":\"Non existent Samoa\",\"official\":\"Non existent Samoa\"} }]";
