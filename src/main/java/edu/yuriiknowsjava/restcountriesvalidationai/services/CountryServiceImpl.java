@@ -32,7 +32,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public List<Map<String, Object>> getCountries() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(Utils.createUri(null + "/all"))
+                .uri(Utils.createUri(restcountriesBaseUrl + "/all"))
                 .GET()
                 .build();
         HttpResponse<String> response = Utils.sendRequest(httpClient, request);
