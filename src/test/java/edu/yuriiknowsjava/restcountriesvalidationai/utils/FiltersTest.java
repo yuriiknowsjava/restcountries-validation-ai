@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,5 +40,24 @@ class FiltersTest {
         var result = Filters.searchByPopulationUpperBound(testData, new BigDecimal(10));
         assertEquals(1, result.size());
         assertEquals(eightMillion, result.get(0).get("population"));
+    }
+
+    @Test
+    void sortByName() {
+        var spain = "Spain";
+        var brazil = "Brazil";
+        var germany = "Germany";
+        List<Map<String, Object>> testData = List.of(
+                Map.of("name", spain),
+                Map.of("name", germany),
+                Map.of("name", brazil)
+        );
+        var expectedNames = Stream.of(brazil, germany, spain)
+                .collect(Collectors.toList());
+        var actualName = Sort.sortByName(testData, Sort.Order.ASD)
+                .stream()
+                .map(country -> (String) country.get("name"))
+                .collect(Collectors.toList());
+        assertEquals(expectedNames, actualName);
     }
 }
