@@ -1,0 +1,438 @@
+================================================================ QUESTION 1: =========================================================================
+
+Can you rewrite the endpoint
+@GetMapping("/countries")
+    public ResponseEntity<List<Map<String, Object>>> getCountries() {
+        return ResponseEntity.ok(countryService.getCountries());
+    }
+to include 4 query parameter: String name, BigDecimal population, Sort sort, int page_size. All query parameters are not required.
+
+Sure! To include the desired query parameters in the endpoint, you'll annotate each parameter with `@RequestParam` and set `required = false` to make them optional. Here's how you can modify your endpoint:
+
+```java
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+public class CountryController {
+
+    @GetMapping("/countries")
+    public ResponseEntity<List<Map<String, Object>>> getCountries(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "population", required = false) BigDecimal population,
+            @RequestParam(value = "sort", required = false) Sort sort,
+            @RequestParam(value = "page_size", required = false) Integer pageSize) {
+
+        return ResponseEntity.ok(countryService.getCountriesFiltered(name, population, sort, pageSize));
+    }
+
+    // Assuming countryService.getCountriesFiltered(...) is implemented elsewhere
+}
+```
+
+A few things to note:
+
+1. I assumed the presence of the `Sort` class from the Spring Data project. This allows you to sort query results.
+2. You mentioned `page_size`, which hints at paginated results. If you're using Spring Data's `Pageable`, it might be more appropriate than handling `sort` and `page_size` individually. `Pageable` can handle sorting, pagination size, and the current page all in one parameter. If you'd like to go down that route, let me know!
+3. Ensure you implement the method `getCountriesFiltered(...)` in your service to handle the logic of filtering, sorting, and pagination based on the provided parameters.
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 2: =========================================================================
+Generate a CountryFilterDto class with 4 fields - String name, BigDecimal population, Sort sort, Integer pageSize. Use lombok
+
+Sure, here's how you can define the `CountryFilterDto` class with the given fields and use Lombok for boilerplate code reduction:
+
+```java
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class CountryFilterDto {
+    private String name;
+    private BigDecimal population;
+    private Sort sort;
+    private Integer pageSize;
+}
+```
+
+Here's a breakdown of the Lombok annotations used:
+
+- `@Getter`: Generates getter methods for all fields.
+- `@Setter`: Generates setter methods for all fields.
+- `@NoArgsConstructor`: Generates a no-args constructor.
+- `@AllArgsConstructor`: Generates a constructor with arguments for all fields.
+
+Make sure to include the Lombok dependency in your `pom.xml` (if using Maven) or `build.gradle` (if using Gradle) to utilize these annotations. If you haven't already, the Maven dependency is as follows:
+
+```xml
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.20</version> <!-- Use the latest version -->
+    <scope>provided</scope>
+</dependency>
+```
+
+Also, ensure that your IDE has the Lombok plugin installed so that it can recognize the generated methods and constructors.
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 3: =========================================================================
+Can you create a DTO based on this JSON
+[
+   {
+      "name":{
+         "common":"Spain",
+         "official":"Kingdom of Spain",
+         "nativeName":{
+            "spa":{
+               "official":"Reino de España",
+               "common":"España"
+            }
+         }
+      },
+      "tld":[
+         ".es"
+      ],
+      "cca2":"ES",
+      "ccn3":"724",
+      "cca3":"ESP",
+      "cioc":"ESP",
+      "independent":true,
+      "status":"officially-assigned",
+      "unMember":true,
+      "currencies":{
+         "EUR":{
+            "name":"Euro",
+            "symbol":"€"
+         }
+      },
+      "idd":{
+         "root":"+3",
+         "suffixes":[
+            "4"
+         ]
+      },
+      "capital":[
+         "Madrid"
+      ],
+      "altSpellings":[
+         "ES",
+         "Kingdom of Spain",
+         "Reino de España"
+      ],
+      "region":"Europe",
+      "subregion":"Southern Europe",
+      "languages":{
+         "spa":"Spanish"
+      },
+      "translations":{
+         "ara":{
+            "official":"مملكة إسبانيا",
+            "common":"إسبانيا"
+         },
+         "bre":{
+            "official":"Rouantelezh Spagn",
+            "common":"Spagn"
+         },
+         "ces":{
+            "official":"Španělské království",
+            "common":"Španělsko"
+         },
+         "cym":{
+            "official":"Kingdom of Spain",
+            "common":"Spain"
+         },
+         "deu":{
+            "official":"Königreich Spanien",
+            "common":"Spanien"
+         },
+         "est":{
+            "official":"Hispaania Kuningriik",
+            "common":"Hispaania"
+         },
+         "fin":{
+            "official":"Espanjan kuningaskunta",
+            "common":"Espanja"
+         },
+         "fra":{
+            "official":"Royaume d'Espagne",
+            "common":"Espagne"
+         },
+         "hrv":{
+            "official":"Kraljevina Španjolska",
+            "common":"Španjolska"
+         },
+         "hun":{
+            "official":"Spanyol Királyság",
+            "common":"Spanyolország"
+         },
+         "ita":{
+            "official":"Regno di Spagna",
+            "common":"Spagna"
+         },
+         "jpn":{
+            "official":"スペイン王国",
+            "common":"スペイン"
+         },
+         "kor":{
+            "official":"에스파냐 왕국",
+            "common":"스페인"
+         },
+         "nld":{
+            "official":"Koninkrijk Spanje",
+            "common":"Spanje"
+         },
+         "per":{
+            "official":"پادشاهی اسپانیا",
+            "common":"اسپانیا"
+         },
+         "pol":{
+            "official":"Królestwo Hiszpanii ",
+            "common":"Hiszpania"
+         },
+         "por":{
+            "official":"Reino de Espanha",
+            "common":"Espanha"
+         },
+         "rus":{
+            "official":"Королевство Испания",
+            "common":"Испания"
+         },
+         "slk":{
+            "official":"Španielske kráľovstvo",
+            "common":"Španielsko"
+         },
+         "spa":{
+            "official":"Reino de España",
+            "common":"España"
+         },
+         "srp":{
+            "official":"Краљевина Шпанија",
+            "common":"Шпанија"
+         },
+         "swe":{
+            "official":"Konungariket Spanien",
+            "common":"Spanien"
+         },
+         "tur":{
+            "official":"İspanya Krallığı",
+            "common":"İspanya"
+         },
+         "urd":{
+            "official":"مملکتِ ہسپانیہ",
+            "common":"ہسپانیہ"
+         },
+         "zho":{
+            "official":"西班牙王国",
+            "common":"西班牙"
+         }
+      },
+      "latlng":[
+         40.0,
+         -4.0
+      ],
+      "landlocked":false,
+      "borders":[
+         "AND",
+         "FRA",
+         "GIB",
+         "PRT",
+         "MAR"
+      ],
+      "area":505992.0,
+      "demonyms":{
+         "eng":{
+            "f":"Spanish",
+            "m":"Spanish"
+         },
+         "fra":{
+            "f":"Espagnole",
+            "m":"Espagnol"
+         }
+      },
+      "flag":"\uD83C\uDDEA\uD83C\uDDF8",
+      "maps":{
+         "googleMaps":"https://goo.gl/maps/138JaXW8EZzRVitY9",
+         "openStreetMaps":"https://www.openstreetmap.org/relation/1311341"
+      },
+      "population":47351567,
+      "gini":{
+         "2018":34.7
+      },
+      "fifa":"ESP",
+      "car":{
+         "signs":[
+            "E"
+         ],
+         "side":"right"
+      },
+      "timezones":[
+         "UTC",
+         "UTC+01:00"
+      ],
+      "continents":[
+         "Europe"
+      ],
+      "flags":{
+         "png":"https://flagcdn.com/w320/es.png",
+         "svg":"https://flagcdn.com/es.svg",
+         "alt":"The flag of Spain is composed of three horizontal bands of red, yellow and red, with the yellow band twice the height of the red bands. In the yellow band is the national coat of arms offset slightly towards the hoist side of center."
+      },
+      "coatOfArms":{
+         "png":"https://mainfacts.com/media/images/coats_of_arms/es.png",
+         "svg":"https://mainfacts.com/media/images/coats_of_arms/es.svg"
+      },
+      "startOfWeek":"monday",
+      "capitalInfo":{
+         "latlng":[
+            40.4,
+            -3.68
+         ]
+      },
+      "postalCode":{
+         "format":"#####",
+         "regex":"^(\\d{5})$"
+      }
+   }
+]
+
+Certainly! Based on the provided JSON, I'll create a set of DTOs to represent the structured data.
+
+Here's a simple representation using Lombok:
+
+```java
+import lombok.Data;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+@Data
+public class CountryDto {
+    private Name name;
+    private List<String> tld;
+    private String cca2;
+    private String ccn3;
+    private String cca3;
+    private String cioc;
+    private Boolean independent;
+    private String status;
+    private Boolean unMember;
+    private Map<String, Currency> currencies;
+    private Idd idd;
+    private List<String> capital;
+    private List<String> altSpellings;
+    private String region;
+    private String subregion;
+    private Map<String, String> languages;
+    private Map<String, Translation> translations;
+    private List<BigDecimal> latlng;
+    private Boolean landlocked;
+    private List<String> borders;
+    private BigDecimal area;
+    private Map<String, Demonyms> demonyms;
+    private String flag;
+    private Map<String, String> maps;
+    private BigDecimal population;
+    private Map<String, BigDecimal> gini;
+    private String fifa;
+    private Car car;
+    private List<String> timezones;
+    private List<String> continents;
+    private Flags flags;
+    private CoatOfArms coatOfArms;
+    private String startOfWeek;
+    private CapitalInfo capitalInfo;
+    private PostalCode postalCode;
+}
+
+@Data
+class Name {
+    private String common;
+    private String official;
+    private Map<String, NativeName> nativeName;
+}
+
+@Data
+class NativeName {
+    private String official;
+    private String common;
+}
+
+@Data
+class Currency {
+    private String name;
+    private String symbol;
+}
+
+@Data
+class Idd {
+    private String root;
+    private List<String> suffixes;
+}
+
+@Data
+class Translation {
+    private String official;
+    private String common;
+}
+
+@Data
+class Demonyms {
+    private String f;
+    private String m;
+}
+
+@Data
+class Car {
+    private List<String> signs;
+    private String side;
+}
+
+@Data
+class Flags {
+    private String png;
+    private String svg;
+    private String alt;
+}
+
+@Data
+class CoatOfArms {
+    private String png;
+    private String svg;
+}
+
+@Data
+class CapitalInfo {
+    private List<BigDecimal> latlng;
+}
+
+@Data
+class PostalCode {
+    private String format;
+    private String regex;
+}
+```
+
+These classes represent the structured data of the provided JSON. Note that for simplicity, I used `BigDecimal` for all numeric values and assumed that all fields are present, even if optional in the real-world scenario.
+
+Make sure to have Lombok dependency in your project to use `@Data` and other annotations.
+======================================================================================================================================================

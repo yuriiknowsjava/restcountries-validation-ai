@@ -7,11 +7,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.yuriiknowsjava.restcountriesvalidationai.dto.CountryDto;
 import edu.yuriiknowsjava.restcountriesvalidationai.exceptions.InternalServerException;
 import edu.yuriiknowsjava.restcountriesvalidationai.exceptions.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public final class Utils {
         }
     }
 
-    public static List<Map<String, Object>> readListOfObjects(ObjectMapper objectMapper, String jsonStr) {
+    public static List<CountryDto> readListOfObjects(ObjectMapper objectMapper, String jsonStr) {
         try {
             return objectMapper.readValue(jsonStr, new TypeReference<>() {
             });
