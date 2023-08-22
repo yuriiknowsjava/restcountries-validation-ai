@@ -4,7 +4,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,13 +44,12 @@ public class CountryServiceImpl implements CountryService {
             log.error("Failed to fetch countries. HTTP Status Code: {}; response body: {}", response.statusCode(), response.body());
             throw new ServiceUnavailableException();
         }
-        var limit = Optional.ofNullable(countryFilterDto.getPageSize()).orElse(250);
         return Utils.readListOfObjects(objectMapper, response.body())
                 .stream()
                 .filter(CountryFilter.countryNamePredicate(countryFilterDto.getName()))
                 .filter(CountryFilter.populationPredicate(countryFilterDto.getPopulation()))
                 .sorted(Sort.countryNameComparator(countryFilterDto.getOrder()))
-                .limit(limit)
+                .limit(countryFilterDto.getPageSize())
                 .collect(Collectors.toList());
     }
 }

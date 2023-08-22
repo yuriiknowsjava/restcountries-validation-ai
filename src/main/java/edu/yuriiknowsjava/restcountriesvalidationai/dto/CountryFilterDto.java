@@ -14,5 +14,5 @@ public class CountryFilterDto {
     private String name;
     private BigDecimal population;
     private Sort.Order order;
-    private Integer pageSize;
+    private int pageSize;
 }

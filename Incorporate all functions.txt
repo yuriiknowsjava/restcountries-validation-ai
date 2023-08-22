@@ -436,3 +436,105 @@ These classes represent the structured data of the provided JSON. Note that for 
 
 Make sure to have Lombok dependency in your project to use `@Data` and other annotations.
 ======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 4: =========================================================================
+How to validate query parameters using Spring Boot?
+
+Validating query parameters in a Spring Boot application often involves a combination of annotations and services provided by Spring. You can use Java's Bean Validation (JSR 380) with the help of Hibernate Validator, which is the reference implementation.
+
+Here's a step-by-step guide on how to validate query parameters in a Spring Boot application:
+
+1. **Add Dependencies**:
+Firstly, you need to add the necessary dependencies to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+2. **Create a DTO (Data Transfer Object)**:
+Instead of validating each query parameter individually, you can map them to a DTO and validate the DTO:
+
+```java
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+public class QueryParameters {
+
+    @NotNull(message = "Name must not be null")
+    @Size(min = 2, max = 30, message = "Name must be between 2 and 30 characters")
+    private String name;
+
+    @Min(value = 18, message = "Age must be at least 18")
+    @Max(value = 100, message = "Age must be at most 100")
+    private int age;
+
+    // Getters, setters, and other properties...
+}
+```
+
+3. **Use the DTO in the Controller**:
+Inject the DTO as a method parameter in your controller method. Use the `@Valid` annotation to trigger the validation:
+
+```java
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/api")
+@Validated
+public class MyController {
+
+    @GetMapping("/endpoint")
+    public ResponseEntity<String> myEndpoint(@Valid QueryParameters parameters) {
+        // your logic here
+        return ResponseEntity.ok("Data is valid!");
+    }
+}
+```
+
+Note the use of `@Validated` at the class level. This is essential for Spring to handle method-level validation.
+
+4. **Exception Handling**:
+You can use a `ControllerAdvice` or `ExceptionHandler` to handle `MethodArgumentNotValidException` which will be thrown if validation fails:
+
+```java
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errors = new StringBuilder();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            errors.append(error.getDefaultMessage()).append("\n");
+        });
+        return new ResponseEntity<>(errors.toString(), HttpStatus.BAD_REQUEST);
+    }
+}
+```
+
+With this setup, if validation fails, the exception handler will catch the error and return a `400 BAD REQUEST` status with a description of the validation errors.
+
+That's the basics of how to validate query parameters using Spring Boot. If you have complex validation logic, consider writing custom validators.
+======================================================================================================================================================

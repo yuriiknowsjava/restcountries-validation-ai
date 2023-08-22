@@ -9,14 +9,14 @@ public final class Sort {
     }
 
     public enum Order {
-        ASD,
+        ASC,
         DESC,
     }
 
     public static Comparator<CountryDto> countryNameComparator(Sort.Order sort) {
         return (countryA, countryB) -> {
             var nameIgnoreCaseComparator = Comparator.comparing(CountryFilter::getOfficialNameNullSafe, String::compareToIgnoreCase);
-            if (sort == null || sort == Sort.Order.ASD) {
+            if (sort == null || sort == Sort.Order.ASC) {
                 return nameIgnoreCaseComparator.compare(countryA, countryB);
             }
             return nameIgnoreCaseComparator.reversed().compare(countryA, countryB);
