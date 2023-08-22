@@ -290,7 +290,7 @@ Remember to update the `CountryService` method to return the appropriate type (l
 
 
 
-================================================================ QUESTION 4: =========================================================================
+================================================================ QUESTION 6: =========================================================================
 Write an exception handler for a spring boot application.
 
 Sure! Here's a step-by-step guide to create a basic exception handler for a Spring Boot application using the `@ControllerAdvice` and `@ExceptionHandler` annotations:

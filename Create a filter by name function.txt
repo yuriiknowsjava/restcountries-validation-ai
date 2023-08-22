@@ -1,0 +1,140 @@
+================================================================ QUESTION 1: =========================================================================
+Write a method that accepts List<Map<String, Object>> and a String. The method searches for maps that have key "name" and its value is equal to the second parameter.
+
+Sure, I can help with that! Here's a simple Java method that accomplishes this:
+
+```java
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+
+public class MapSearcher {
+
+    /**
+     * Filters the list of maps to return only those that have a "name" key with the given value.
+     *
+     * @param maps  The list of maps to search through.
+     * @param name  The value to match against the "name" key.
+     * @return A list of maps that have a "name" key with the given value.
+     */
+    public static List<Map<String, Object>> searchByName(List<Map<String, Object>> maps, String name) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (Map<String, Object> map : maps) {
+            if (name.equals(map.get("name"))) {
+                results.add(map);
+            }
+        }
+
+        return results;
+    }
+
+    public static void main(String[] args) {
+        // Test the method
+        List<Map<String, Object>> maps = List.of(
+                Map.of("name", "Alice", "age", 25),
+                Map.of("name", "Bob", "age", 30),
+                Map.of("name", "Charlie", "age", 35),
+                Map.of("name", "Alice", "job", "Engineer")
+        );
+
+        System.out.println(searchByName(maps, "Alice"));
+    }
+}
+```
+
+You can use the `searchByName` method to find all maps that have a key named "name" with a given value. The example in the `main` method demonstrates the usage of the method.
+======================================================================================================================================================
+
+
+
+
+
+================================================================ QUESTION 2: =========================================================================
+Can you rewrite searchByName method so it searches by name ignoring the case. Also, use Java stream API
+
+Certainly! Using Java streams, we can filter the list based on the criteria given and collect the results into a new list. Here's how the `searchByName` method can be rewritten to ignore case using the Stream API:
+
+```java
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class MapSearcher {
+
+    /**
+     * Filters the list of maps to return only those that have a "name" key with the given value.
+     * This version ignores the case when comparing names.
+     *
+     * @param maps  The list of maps to search through.
+     * @param name  The value to match against the "name" key.
+     * @return A list of maps that have a "name" key with the given value.
+     */
+    public static List<Map<String, Object>> searchByName(List<Map<String, Object>> maps, String name) {
+        return maps.stream()
+                   .filter(map -> name.equalsIgnoreCase((String) map.get("name")))
+                   .collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        // Test the method
+        List<Map<String, Object>> maps = List.of(
+                Map.of("name", "Alice", "age", 25),
+                Map.of("name", "Bob", "age", 30),
+                Map.of("name", "Charlie", "age", 35),
+                Map.of("name", "alice", "job", "Engineer")
+        );
+
+        System.out.println(searchByName(maps, "alice"));
+    }
+}
+```
+
+With this implementation, the method will search for names case-insensitively using the `equalsIgnoreCase` method. The stream-based approach also makes the method concise and more readable for those familiar with the Stream API.
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 3: =========================================================================
+Can you rewrite searchByName method so it searches by name ignoring the case. Also, use Java stream API
+
+Certainly! Using Java streams, we can filter the list based on the criteria given and collect the results into a new list. Here's how the `searchByName` method can be rewritten to ignore case using the Stream API:
+
+```java
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class MapSearcher {
+
+    /**
+     * Filters the list of maps to return only those that have a "name" key with the given value.
+     * This version ignores the case when comparing names.
+     *
+     * @param maps  The list of maps to search through.
+     * @param name  The value to match against the "name" key.
+     * @return A list of maps that have a "name" key with the given value.
+     */
+    public static List<Map<String, Object>> searchByName(List<Map<String, Object>> maps, String name) {
+        return maps.stream()
+                   .filter(map -> name.equalsIgnoreCase((String) map.get("name")))
+                   .collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        // Test the method
+        List<Map<String, Object>> maps = List.of(
+                Map.of("name", "Alice", "age", 25),
+                Map.of("name", "Bob", "age", 30),
+                Map.of("name", "Charlie", "age", 35),
+                Map.of("name", "alice", "job", "Engineer")
+        );
+
+        System.out.println(searchByName(maps, "alice"));
+    }
+}
+```
+
+With this implementation, the method will search for names case-insensitively using the `equalsIgnoreCase` method. The stream-based approach also makes the method concise and more readable for those familiar with the Stream API.
+======================================================================================================================================================
