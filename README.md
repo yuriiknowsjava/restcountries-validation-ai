@@ -165,8 +165,6 @@ Represents the common and official names of a country.
 
 ## Examples
 
-Certainly! Here are 10 example usages of the `GET /countries` endpoint with various combinations of query parameters:
-
 1. **Retrieve All Countries with Default Settings**
 
 ```http
@@ -234,10 +232,6 @@ This could retrieve countries with names starting with "Sw" and with a populatio
 
 This would retrieve countries with names that might start with "Can", have a population greater than 35 million, ordered in ascending order, with a
 maximum of 10 results.
-
-Note: The exact behavior of some parameters (like the behavior of the `population` filter) might vary based on the service's implementation. The above
-examples assume certain behaviors, but the actual results may differ.
-
 
 ---
 
