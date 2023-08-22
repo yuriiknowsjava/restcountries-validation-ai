@@ -285,3 +285,94 @@ A few things to note:
 
 Remember to update the `CountryService` method to return the appropriate type (like a `List<Country>` or similar), instead of a plain `String`, for better type safety and clarity.
 ======================================================================================================================================================
+
+
+
+
+
+================================================================ QUESTION 4: =========================================================================
+Write an exception handler for a spring boot application.
+
+Sure! Here's a step-by-step guide to create a basic exception handler for a Spring Boot application using the `@ControllerAdvice` and `@ExceptionHandler` annotations:
+
+1. **Custom Exception**
+
+Let's start by defining a custom exception:
+
+```java
+public class CustomException extends RuntimeException {
+    public CustomException(String message) {
+        super(message);
+    }
+}
+```
+
+2. **Exception Handler**
+
+Create an exception handler class using `@ControllerAdvice`:
+
+```java
+package com.example.demo.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Object> handleCustomException(CustomException ex) {
+        // This can be a custom error object with more details
+        String errorResponse = ex.getMessage();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // You can handle more exceptions like below
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGenericException(Exception ex) {
+        String errorResponse = "An unexpected error occurred: " + ex.getMessage();
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+```
+
+3. **Usage**
+
+Now, in your controllers or services, you can throw the `CustomException`:
+
+```java
+@GetMapping("/some-endpoint")
+public String someEndpoint() {
+    // ... some logic ...
+
+    throw new CustomException("Something went wrong!");
+}
+```
+
+If this exception is thrown, it will be caught by the `handleCustomException` method in `GlobalExceptionHandler`, and a response with status code 400 Bad Request will be returned along with the error message.
+
+4. **Advanced Error Handling (Optional)**
+
+You can improve the error handling by creating a custom error response object:
+
+```java
+public class ErrorResponse {
+    private String message;
+    private String details;
+    // ... getters, setters, constructor ...
+}
+```
+
+Then, in your exception handler, instead of returning a plain string, you can return an instance of `ErrorResponse`:
+
+```java
+@ExceptionHandler(CustomException.class)
+public ResponseEntity<Object> handleCustomException(CustomException ex) {
+    ErrorResponse error = new ErrorResponse(ex.getMessage(), "Some detailed message");
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+}
+```
+
+With this setup, any `CustomException` thrown in your application will be caught by the `GlobalExceptionHandler`, and a structured error response will be returned to the client.
