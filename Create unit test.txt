@@ -1,0 +1,517 @@
+================================================================ QUESTION 1: =========================================================================
+I have the following DTOs:
+@Data
+public class CountryName {
+    private String common;
+    private String official;
+}
+
+@Data
+public class CountryDto {
+    private CountryName name;
+    private List<String> tld;
+    private String cca2;
+    private String ccn3;
+    private String cca3;
+    private String cioc;
+    private Boolean independent;
+    private String status;
+    private Boolean unMember;
+    private List<String> capital;
+    private List<String> altSpellings;
+    private String region;
+    private String subregion;
+    private Map<String, String> languages;
+    private List<BigDecimal> latlng;
+    private Boolean landlocked;
+    private List<String> borders;
+    private BigDecimal area;
+    private String flag;
+    private Map<String, String> maps;
+    private BigDecimal population;
+    private Map<String, BigDecimal> gini;
+    private String fifa;
+    private List<String> timezones;
+    private List<String> continents;
+    private String startOfWeek;
+}
+
+Please, generate unit tests for this method
+public static Comparator<CountryDto> countryNameComparator(Sort.Order sort) {
+        return (countryA, countryB) -> {
+            var nameIgnoreCaseComparator = Comparator.comparing(CountryFilter::getOfficialNameNullSafe, String::compareToIgnoreCase);
+            if (sort == null || sort == Sort.Order.ASC) {
+                return nameIgnoreCaseComparator.compare(countryA, countryB);
+            }
+            return nameIgnoreCaseComparator.reversed().compare(countryA, countryB);
+        };
+    }
+
+ChatGPT
+
+Certainly! Here are some unit tests for the given method, `countryNameComparator`.
+
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class CountryDtoTest {
+
+    private CountryDto country1;
+    private CountryDto country2;
+
+    @BeforeEach
+    public void setUp() {
+        country1 = new CountryDto();
+        country2 = new CountryDto();
+
+        CountryName countryName1 = new CountryName();
+        countryName1.setOfficial("Germany");
+
+        CountryName countryName2 = new CountryName();
+        countryName2.setOfficial("France");
+
+        country1.setName(countryName1);
+        country2.setName(countryName2);
+    }
+
+    @Test
+    public void testCountryNameComparatorAscending() {
+        Comparator<CountryDto> comparator = CountryDto.countryNameComparator(Sort.Order.ASC);
+
+        int result = comparator.compare(country1, country2);
+
+        assertEquals(1, result);  // Germany comes after France in alphabetical order
+    }
+
+    @Test
+    public void testCountryNameComparatorDescending() {
+        Comparator<CountryDto> comparator = CountryDto.countryNameComparator(Sort.Order.DESC);
+
+        int result = comparator.compare(country1, country2);
+
+        assertEquals(-1, result);  // In descending order, Germany comes before France
+    }
+
+    @Test
+    public void testCountryNameComparatorNullSort() {
+        Comparator<CountryDto> comparator = CountryDto.countryNameComparator(null);
+
+        int result = comparator.compare(country1, country2);
+
+        assertEquals(1, result);  // Default is ascending, so Germany comes after France
+    }
+
+    @Test
+    public void testCountryNameComparatorSameNames() {
+        country2.getName().setOfficial("Germany");
+
+        Comparator<CountryDto> comparator = CountryDto.countryNameComparator(Sort.Order.ASC);
+
+        int result = comparator.compare(country1, country2);
+
+        assertEquals(0, result);  // Names are the same, so result should be 0
+    }
+
+    @Test
+    public void testCountryNameComparatorIgnoreCase() {
+        country1.getName().setOfficial("germany");
+        country2.getName().setOfficial("FRANCE");
+
+        Comparator<CountryDto> comparator = CountryDto.countryNameComparator(Sort.Order.ASC);
+
+        int result = comparator.compare(country1, country2);
+
+        assertEquals(1, result);  // Comparing should be case-insensitive, so germany still comes after France
+    }
+
+    // Further tests can include null name, or null official name.
+}
+
+```
+
+Some assumptions made while writing the tests:
+
+1. `CountryDto` and `CountryName` classes have proper getters and setters.
+2. A `Sort.Order` enum is assumed to exist with values `ASC` and `DESC`. Modify accordingly if the actual definition differs.
+
+You can add more tests, such as checking for null name fields or official name fields, as mentioned in the comments. Remember, unit tests should be specific and test a single functionality or scenario.
+======================================================================================================================================================
+
+
+
+
+
+================================================================ QUESTION 2: =========================================================================
+Please, write unit tests for this class
+public final class CountryFilter {
+    private CountryFilter() {
+    }
+
+    public static Predicate<CountryDto> countryNamePredicate(String countryName) {
+        if (countryName == null || countryName.isBlank()) {
+            return country -> true;
+        }
+        Predicate<CountryDto> isOfficialName = country -> {
+            var actualName = getOfficialNameNullSafe(country);
+            return actualName.toLowerCase().contains(countryName.toLowerCase());
+        };
+        Predicate<CountryDto> isCommonName = country -> {
+            var actualName = getCommonNameNullSafe(country);
+            return actualName.toLowerCase().contains(countryName.toLowerCase());
+        };
+        return isOfficialName.or(isCommonName);
+    }
+
+    public static String getOfficialNameNullSafe(CountryDto countryDto) {
+        return Optional.ofNullable(countryDto)
+                .map(CountryDto::getName)
+                .map(CountryName::getOfficial)
+                .orElse("");
+    }
+
+    public static String getCommonNameNullSafe(CountryDto countryDto) {
+        return Optional.ofNullable(countryDto)
+                .map(CountryDto::getName)
+                .map(CountryName::getOfficial)
+                .orElse("");
+    }
+
+    /**
+     *
+     * @param populationUpperBound - upper bound, in millions, for instance, 10 means 10 million.
+     * @return {@link edu.yuriiknowsjava.restcountriesvalidationai.dto.CountryDto} containing country information.
+     */
+    public static Predicate<CountryDto> populationPredicate(BigDecimal populationUpperBound) {
+        if (populationUpperBound == null) {
+            return country -> true;
+        }
+        return countryDto -> {
+            var population = countryDto.getPopulation();
+            if (population == null) {
+                return false;
+            }
+            var actualPopulation = population.divide(new BigDecimal(1_000_000), 2, RoundingMode.HALF_DOWN);
+            return actualPopulation.compareTo(populationUpperBound) < 0;
+        };
+    }
+}
+
+Here's a set of unit tests for the `CountryFilter` class:
+
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CountryFilterTest {
+
+    private CountryDto country;
+
+    @BeforeEach
+    public void setUp() {
+        country = new CountryDto();
+        CountryName countryName = new CountryName();
+        countryName.setCommon("Germany");
+        countryName.setOfficial("Federal Republic of Germany");
+        country.setName(countryName);
+        country.setPopulation(new BigDecimal("83000000")); // 83 million
+    }
+
+    @Test
+    public void testCountryNamePredicateMatchingOfficialName() {
+        assertTrue(CountryFilter.countryNamePredicate("Federal").test(country));
+    }
+
+    @Test
+    public void testCountryNamePredicateNotMatching() {
+        assertFalse(CountryFilter.countryNamePredicate("Italy").test(country));
+    }
+
+    @Test
+    public void testCountryNamePredicateBlank() {
+        assertTrue(CountryFilter.countryNamePredicate("").test(country));
+    }
+
+    @Test
+    public void testCountryNamePredicateNull() {
+        assertTrue(CountryFilter.countryNamePredicate(null).test(country));
+    }
+
+    @Test
+    public void testGetOfficialNameNullSafe() {
+        assertEquals("Federal Republic of Germany", CountryFilter.getOfficialNameNullSafe(country));
+    }
+
+    @Test
+    public void testGetOfficialNameNullSafeWithNullCountry() {
+        assertEquals("", CountryFilter.getOfficialNameNullSafe(null));
+    }
+
+    @Test
+    public void testGetCommonNameNullSafe() {
+        assertEquals("Germany", CountryFilter.getCommonNameNullSafe(country));
+    }
+
+    @Test
+    public void testGetCommonNameNullSafeWithNullCountry() {
+        assertEquals("", CountryFilter.getCommonNameNullSafe(null));
+    }
+
+    @Test
+    public void testPopulationPredicateWithinUpperBound() {
+        assertTrue(CountryFilter.populationPredicate(new BigDecimal("100")).test(country)); // 100 million as upper bound
+    }
+
+    @Test
+    public void testPopulationPredicateOutsideUpperBound() {
+        assertFalse(CountryFilter.populationPredicate(new BigDecimal("50")).test(country)); // 50 million as upper bound
+    }
+
+    @Test
+    public void testPopulationPredicateNullUpperBound() {
+        assertTrue(CountryFilter.populationPredicate(null).test(country));
+    }
+
+    @Test
+    public void testPopulationPredicateCountryWithNullPopulation() {
+        country.setPopulation(null);
+        assertFalse(CountryFilter.populationPredicate(new BigDecimal("100")).test(country));
+    }
+}
+```
+
+This covers a good portion of the functionality in `CountryFilter`. You might want to add more cases, especially if there are edge cases or specific behaviors you are worried about.
+
+Also, there seems to be an error in your `CountryFilter` class. Both `getOfficialNameNullSafe` and `getCommonNameNullSafe` methods retrieve the official name. You should fix `getCommonNameNullSafe` to correctly retrieve the common name. Adjust the tests accordingly after making this correction.
+======================================================================================================================================================
+
+
+
+
+
+================================================================ QUESTION 3: =========================================================================
+Write Spring Boot Test using mockito to mock http response, for this class
+@Slf4j
+@Service
+public class CountryServiceImpl implements CountryService {
+
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper;
+    private final String restcountriesBaseUrl;
+
+    @Autowired
+    public CountryServiceImpl(HttpClient httpClient, ObjectMapper objectMapper, @Value("${rescountries.api.base.url}") String restcountriesBaseUrl) {
+        this.httpClient = httpClient;
+        this.objectMapper = objectMapper;
+        this.restcountriesBaseUrl = restcountriesBaseUrl;
+    }
+
+    @Override
+    public List<CountryDto> getCountries(CountryFilterDto countryFilterDto) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(Utils.createUri(restcountriesBaseUrl + "/all"))
+                .GET()
+                .build();
+        HttpResponse<String> response = Utils.sendRequest(httpClient, request);
+        if (response.statusCode() != 200) {
+            log.error("Failed to fetch countries. HTTP Status Code: {}; response body: {}", response.statusCode(), response.body());
+            throw new ServiceUnavailableException();
+        }
+        return Utils.readListOfObjects(objectMapper, response.body())
+                .stream()
+                .filter(CountryFilter.countryNamePredicate(countryFilterDto.getName()))
+                .filter(CountryFilter.isPopulationSizeLessThan(countryFilterDto.getPopulation()))
+                .sorted(Sort.countryNameComparator(countryFilterDto.getOrder()))
+                .limit(countryFilterDto.getPageSize())
+                .collect(Collectors.toList());
+    }
+}
+
+Here's a Spring Boot Test using Mockito to mock an HTTP response for the `CountryServiceImpl` class:
+
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+public class CountryServiceImplTest {
+
+    @InjectMocks
+    private CountryServiceImpl countryService;
+
+    @Mock
+    private HttpClient httpClient;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
+    private HttpResponse<String> mockResponse;
+
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void getCountriesReturnsValidListOnSuccess() throws Exception {
+        // Prepare test data
+        CountryDto testCountryDto = new CountryDto();
+        CountryName countryName = new CountryName();
+        countryName.setCommon("Germany");
+        countryName.setOfficial("Federal Republic of Germany");
+        testCountryDto.setName(countryName);
+
+        List<CountryDto> countryDtoList = Collections.singletonList(testCountryDto);
+
+        String jsonResponse = "[{...}]";  // This is a mocked JSON response, represent it according to actual data
+
+        CountryFilterDto filterDto = new CountryFilterDto();
+        filterDto.setName("Germany");
+        filterDto.setPopulation(83);
+        filterDto.setPageSize(1);
+        filterDto.setOrder(Sort.Order.ASC);
+
+        // Mocking behavior
+        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(mockResponse);
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn(jsonResponse);
+        when(objectMapper.readValue(jsonResponse, new TypeReference<List<CountryDto>>() {})).thenReturn(countryDtoList);
+
+        // Test
+        List<CountryDto> result = countryService.getCountries(filterDto);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("Germany", result.get(0).getName().getCommon());
+    }
+
+    // You can also add more tests, for instance, when the HTTP status is not 200, etc.
+}
+```
+
+Note:
+
+1. This assumes you have a `CountryFilterDto` that has getters and setters for name, population, pageSize, and order.
+2. The test also assumes that there's a `Sort` class with an `Order` enum having `ASC`.
+3. Adjust the mocked JSON (`jsonResponse`) according to your actual data.
+
+The given test verifies the successful scenario where the service retrieves a list of countries matching the provided filter. You should also write tests for error scenarios (e.g., when the HTTP response is not 200, when the ObjectMapper throws an exception, etc.).
+======================================================================================================================================================
+
+
+
+
+================================================================ QUESTION 4: =========================================================================
+Write SpringBootTest for CountryServiceImpl using mockserver and testcontainers
+
+Sure, using `Testcontainers` and `MockServer`, we can simulate the real-world interaction of the `CountryServiceImpl` with the HTTP endpoint. Here's how you can set up the test:
+
+### 1. Add the necessary dependencies:
+Make sure you have the `testcontainers` and `mockserver` dependencies in your `pom.xml`:
+```xml
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>testcontainers</artifactId>
+    <version>1.16.2</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.testcontainers</groupId>
+    <artifactId>mockserver</artifactId>
+    <version>1.16.2</version>
+    <scope>test</scope>
+</dependency>
+```
+
+### 2. Write the `SpringBootTest`:
+
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.integration.ClientAndServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.MockServerContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@Testcontainers
+public class CountryServiceImplTest {
+
+    @Container
+    public MockServerContainer mockServer = new MockServerContainer();
+
+    @Autowired
+    private CountryServiceImpl countryService;
+
+    @Test
+    public void testGetCountries() {
+        // Setup mock server response
+        String expectedJson = "[{ \"name\": { \"common\": \"Germany\", \"official\": \"Federal Republic of Germany\" } }]";
+
+        new MockServerClient(mockServer.getHost(), mockServer.getServerPort())
+            .when(request("/all"))
+            .respond(response()
+                .withStatusCode(200)
+                .withBody(expectedJson));
+
+        // Use the mockServer URL as the base URL for HTTP requests in CountryServiceImpl
+        ReflectionTestUtils.setField(countryService, "restcountriesBaseUrl", mockServer.getEndpoint());
+
+        CountryFilterDto filterDto = new CountryFilterDto();
+        filterDto.setName("Germany");
+
+        // Test
+        List<CountryDto> result = countryService.getCountries(filterDto);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("Germany", result.get(0).getName().getCommon());
+    }
+}
+```
+
+Some notes:
+
+- We're using `Testcontainers` to spin up a `MockServer` container. This server will respond to the HTTP requests we specify.
+- We're then setting the `restcountriesBaseUrl` of the `CountryServiceImpl` to point to this mock server.
+- We use `MockServerClient` to specify the HTTP request and response behavior we want the mock server to emulate.
+- Finally, we call the service method and check if it behaves as expected.
+
+Make sure Docker is running on your machine as Testcontainers will use it to start the container.
+
+This is a basic example, and you might need to adjust it based on your exact use case, but it should give you a good starting point.
+======================================================================================================================================================

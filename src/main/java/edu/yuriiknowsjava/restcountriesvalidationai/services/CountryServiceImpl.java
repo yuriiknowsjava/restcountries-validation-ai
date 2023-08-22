@@ -47,7 +47,7 @@ public class CountryServiceImpl implements CountryService {
         return Utils.readListOfObjects(objectMapper, response.body())
                 .stream()
                 .filter(CountryFilter.countryNamePredicate(countryFilterDto.getName()))
-                .filter(CountryFilter.populationPredicate(countryFilterDto.getPopulation()))
+                .filter(CountryFilter.isPopulationSizeLessThan(countryFilterDto.getPopulation()))
                 .sorted(Sort.countryNameComparator(countryFilterDto.getOrder()))
                 .limit(countryFilterDto.getPageSize())
                 .collect(Collectors.toList());

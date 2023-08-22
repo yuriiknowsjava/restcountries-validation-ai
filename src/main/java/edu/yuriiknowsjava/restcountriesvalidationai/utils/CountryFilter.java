@@ -37,7 +37,7 @@ public final class CountryFilter {
     public static String getCommonNameNullSafe(CountryDto countryDto) {
         return Optional.ofNullable(countryDto)
                 .map(CountryDto::getName)
-                .map(CountryName::getOfficial)
+                .map(CountryName::getCommon)
                 .orElse("");
     }
 
@@ -46,7 +46,7 @@ public final class CountryFilter {
      * @param populationUpperBound - upper bound, in millions, for instance, 10 means 10 million.
      * @return {@link edu.yuriiknowsjava.restcountriesvalidationai.dto.CountryDto} containing country information.
      */
-    public static Predicate<CountryDto> populationPredicate(BigDecimal populationUpperBound) {
+    public static Predicate<CountryDto> isPopulationSizeLessThan(BigDecimal populationUpperBound) {
         if (populationUpperBound == null) {
             return country -> true;
         }
