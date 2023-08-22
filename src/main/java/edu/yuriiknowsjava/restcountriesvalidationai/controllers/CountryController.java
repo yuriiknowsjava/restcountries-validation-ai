@@ -19,7 +19,7 @@ public class CountryController {
     }
 
     @GetMapping("/countries")
-    public ResponseEntity<List<Map<String, Object>>> getCountries() throws Exception {
+    public ResponseEntity<List<Map<String, Object>>> getCountries() {
         return ResponseEntity.ok(countryService.getCountries());
     }
 }

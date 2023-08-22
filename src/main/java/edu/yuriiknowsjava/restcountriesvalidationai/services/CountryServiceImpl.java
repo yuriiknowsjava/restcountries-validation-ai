@@ -7,9 +7,9 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.yuriiknowsjava.restcountriesvalidationai.exceptions.ServiceUnavailableException;
+import edu.yuriiknowsjava.restcountriesvalidationai.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,17 +31,16 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<Map<String, Object>> getCountries() throws Exception {
+    public List<Map<String, Object>> getCountries() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(restcountriesBaseUrl + "/all"))
+                .uri(URI.create(restcountriesBaseUrl + "/all"))
                 .GET()
                 .build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = Utils.sendRequest(httpClient, request);
         if (response.statusCode() != 200) {
             log.error("Failed to fetch countries. HTTP Status Code: {}; response body: {}", response.statusCode(), response.body());
             throw new ServiceUnavailableException();
         }
-        return objectMapper.readValue(response.body(), new TypeReference<>() {
-        });
+        return Utils.readListOfObjects(objectMapper, response.body());
     }
 }
